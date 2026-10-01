@@ -5,20 +5,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-function Auth({ users, setUsers }) {
-  console.log(users);
+function Auth() {
 
   const navigate = useNavigate();
   const clicker = () => {
     navigate('/')
   }
 
-  // const[users, setUsers] = useState(
-  //   [
-  //   {login: 'qqqwwwe', password: '123'}, 
-  //   {login: 'www', password: '111'}]
-  //   )
-
+  //хранение в State более простым способом (в отличие от хранения в Регистрации)
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -26,24 +20,41 @@ function Auth({ users, setUsers }) {
   const handlerLogin = (value) => setLogin(value);
   const handlerPassword = (value) => setPassword(value);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('')
+    //в отличие от  Регистрации проверка пустых инпутов на Js
     if (!login || !password) {
       setError('Все поля обязательны для заполнения');
       return;
     }
-    const foundUser = users.some((user) => user.login === login && user.password === password);
-    console.log(foundUser);
 
-    if (foundUser) {
-      alert('Вы вошли в систему')
-      setLogin('');
-      setPassword('');
-      navigate('/home')
-    } else {
-      setError('Неверный логин или пароль')
+    try {
+      const response = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ login, password }),
+      });
+
+      const result = await response.json()
+
+      if (result.user === false) {
+        //другой способ вывода ошибок (на форме)
+        setError(result.message )
+        return
+      } 
+        
+        localStorage.setItem("currentUser", JSON.stringify(result.user))
+        console.log("Зашел");
+        alert(result.message)
+        navigate("/home")
+    
+    } catch (error) {
+      console.error(error);
     }
+  
 
   }
 
@@ -60,6 +71,7 @@ function Auth({ users, setUsers }) {
         <Form.Label>Password</Form.Label>
         <Form.Control type="password" placeholder="Пароль" value={password} onChange={(e) => handlerPassword(e.target.value)} />
         <Form.Text className="text-danger fw-bold">
+          {/* другой способ вывода ошибок */}
           {error}
         </Form.Text>
       </Form.Group>
@@ -74,11 +86,6 @@ function Auth({ users, setUsers }) {
         <Nav defaultActiveKey="/home" className="flex-column">
           <Nav.Link href="/home">Ещё не зарегистрированы? </Nav.Link>
         </Nav>
-
-
-
-
-
       </div>
     </Form>
   );
