@@ -47,7 +47,6 @@ function Auth() {
       } 
         
         localStorage.setItem("currentUser", JSON.stringify(result.user))
-        console.log("Зашел");
         alert(result.message)
         navigate("/home")
     

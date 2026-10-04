@@ -24,6 +24,20 @@ app.post('/reg', (req, res) => {
     })
 })
 
+app.post('/application', (req, res) => {
+
+    const { id_user, room, date_b, payment_method } = req.body
+
+    const sql = `INSERT INTO booking(id_user, room, date_b, payment_method) VALUES(?,?,?,?)`
+    db.query(sql, [id_user, room, date_b, payment_method], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(401).json({message: `Некорректные данные`})
+        }
+            return res.status(200).json({message: 'Завка добавлена'})
+    })
+})
+
 app.post('/login', (req, res) => {
     const { login, password } = req.body
     const sql = `SELECT * FROM users WHERE login = ? AND password = ?`
@@ -47,6 +61,17 @@ app.post('/login', (req, res) => {
     })
 })
 
+app.get('/applications', (req, res) => {
+
+    const sql = `select * from booking`
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(401).json({message: `Error DB`})
+        }
+            return res.status(200).json(result)
+    })
+})
 
 app.listen(port, () => {
     console.log(`Сервер запущен на порту: ${port}`);

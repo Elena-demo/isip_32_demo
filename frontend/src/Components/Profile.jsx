@@ -1,56 +1,55 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
+import { useNavigate } from 'react-router-dom';
 function Profile() {
-    const [request, setRequest] = useState([
-        {
-            id: 1,
-            nameKurs: 'JavaScript',
-            dateStart: '11.12.2000',
-            paymentMethod: 'наличные',
-            feedback: 'КРУТО'
+    const [applications, setApplications] = useState([])
 
-        },
-        {
-            id: 2,
-            nameKurs: 'JavaScript',
-            dateStart: '11.12.2000',
-            paymentMethod: 'наличные',
-            feedback: 'КРУТО'
+    const navigate = useNavigate()
 
-        },
-        {
-            id: 3,
-            nameKurs: 'React',
-            dateStart: '01.09.2022',
-            paymentMethod: 'онлайн',
-            feedback: 'Супер'
+    useEffect(() => {
+        function getApplications() {
+            fetch("http://localhost:3000/applications")
+                .then((response) => response.json(response))
+                .then((data) => setApplications(data))
         }
+        getApplications()
 
+    }, [])
 
-    ])
+    const clicker = () => {
+        navigate('/addApplication')
+    }
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'))
+
     return (
         <>
-            <h1>Просмотр заявок</h1>
+            <h1>Оставленные заявки</h1>
+            <button onClick={clicker}>Создать заявку</button>
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>наименование курса</th>
-                        <th>дата начала обучения</th>
+                        {/* <th>#</th> */}
+                        <th>тип помещения</th>
+                        <th>дата начала </th>
                         <th>способ оплаты</th>
                         <th>отзыв</th>
                     </tr>
                 </thead>
                 <tbody>
 
-                    {request.map((el, index) => (
-                        <tr>
-                            <td>{el.id}</td>
-                            <td>{el.nameKurs}</td>
-                            <td>{el.dateStart}</td>
-                            <td>{el.paymentMethod}</td>
-                            <td>{el.feedback}</td>
-                        </tr>
+                    {
+                        // applications.length === 0 ? 
+                        // <h2 style={{ color: 'blue' }}>Заявок нет</h2> :
+                    applications.map((el, index) => (
+                        currentUser.id_user == el.id_user &&
+                        (
+                            <tr key={el.id_b}>
+                                <td>{el.room}</td>
+                                <td>{new Date(el.date_b).toLocaleString('ru-RU').slice(0, 10)}</td>
+                                <td>{el.payment_method}</td>
+                                <td><textarea></textarea></td>
+                            </tr>
+                        )
                     ))}
                 </tbody>
             </Table>
